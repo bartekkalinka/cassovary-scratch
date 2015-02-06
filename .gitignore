@@ -1,0 +1,8 @@
+*.class
+*.bak
+target
+*.rar
+*.tgz
+project
+.idea
+*.txt
