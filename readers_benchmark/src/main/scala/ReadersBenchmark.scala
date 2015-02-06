@@ -4,8 +4,6 @@
 
 import java.io.PrintWriter
 
-import com.twitter.cassovary.util.io.AdjacencyListGraphReader
-import java.util.concurrent.Executors
 import scala.concurrent.duration.Duration
 
 import scala.util.Random
@@ -40,14 +38,6 @@ class GraphGenerator(nodesNumber: Int) {
 }
 
 class ReadersBenchmark(reader: ExpReader, dir: String, file: String, iterations: Int) {
-  def readGraph = {
-    val threadPool = Executors.newFixedThreadPool(2)
-    val graph = AdjacencyListGraphReader.forIntIds(dir, file,
-      threadPool).toArrayBasedDirectedGraph()
-    threadPool.shutdown()
-    graph
-  }
-
   def runOnce = {
     val start: Long = System.currentTimeMillis
     val (nodeCount, edgeCount) = reader.read(dir, file)
