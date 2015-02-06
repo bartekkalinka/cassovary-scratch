@@ -39,7 +39,7 @@ class GraphGenerator(nodesNumber: Int) {
   }
 }
 
-class ReadersBenchmark(dir: String, file: String, iterations: Int) {
+class ReadersBenchmark(reader: ExpReader, dir: String, file: String, iterations: Int) {
   def readGraph = {
     val threadPool = Executors.newFixedThreadPool(2)
     val graph = AdjacencyListGraphReader.forIntIds(dir, file,
@@ -48,34 +48,17 @@ class ReadersBenchmark(dir: String, file: String, iterations: Int) {
     graph
   }
 
-  def expRead = {
-    val start: Long = System.currentTimeMillis
-
-    val reader = new CurrentEmulatedReader
-    val (nodesCount, edgesCount) = reader.read(dir + file)
-
-    //TODO DRY
-    val duration = Duration(System.currentTimeMillis - start, "millis")
-
-    printf("Exp read: %s nodes and %s directed edges. Time: %s\n",
-      nodesCount, edgesCount, duration)
-  }
-
   def runOnce = {
     val start: Long = System.currentTimeMillis
-
-    val graph = readGraph
-
+    val (nodeCount, edgeCount) = reader.read(dir, file)
     val duration = Duration(System.currentTimeMillis - start, "millis")
-
     printf("Graph: %s nodes and %s directed edges. Time: %s\n",
-      graph.nodeCount, graph.edgeCount, duration)
+      nodeCount, edgeCount, duration)
   }
 
   def run = {
     for(i <- 1 to iterations) {
-      //TODO parametrize
-      expRead
+      runOnce
     }
   }
 }
@@ -86,8 +69,8 @@ object MainApp {
   val nodesNumber = 10000
 
   def main(args: Array[String]) {
-    def readGraph = {
-      val bench = new ReadersBenchmark(mainDir, mainFile, 12).run
+    def readGraph(reader: ExpReader) = {
+      val bench = new ReadersBenchmark(reader, mainDir, mainFile, 12).run
     }
 
     def generateGraph = {
@@ -96,9 +79,9 @@ object MainApp {
     }
 
     args(0) match {
-      case "parse" => readGraph
+      case "parse" => readGraph(new CurrentRealReader)
       case "gen" => generateGraph
-      case "exp" => readGraph //TODO differentiate parse and exp
+      case "exp" => readGraph(new CurrentEmulatedReader)
     }
   }
 }
