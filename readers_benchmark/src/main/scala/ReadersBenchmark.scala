@@ -71,7 +71,8 @@ object MainApp {
     args(0) match {
       case "parse" => readGraph(new CurrentRealReader)
       case "gen" => generateGraph
-      case "exp" => readGraph(new CurrentEmulatedReader)
+      case "emul" => readGraph(new CurrentEmulatedReader)
+      case "exp" => readGraph(new InputStreamBasedReader)
     }
   }
 }

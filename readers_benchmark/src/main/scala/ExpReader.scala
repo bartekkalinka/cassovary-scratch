@@ -1,3 +1,4 @@
+import java.io.{DataInputStream, BufferedReader, InputStreamReader, FileInputStream}
 import java.util.concurrent.Executors
 
 import com.twitter.cassovary.util.io.AdjacencyListGraphReader
@@ -47,3 +48,30 @@ class CurrentEmulatedReader extends ExpReader {
     (nodeCount, edgeCount)
   }
 }
+
+class InputStreamBasedReader extends ExpReader {
+  private val separator = ' '
+
+  override def read(dir: String, file: String) = {
+    var nodeCount = 0
+    var edgeCount = 0L
+    val stream = new FileInputStream(dir + file)
+    val reader = new BufferedReader(new InputStreamReader(stream))
+    var line = reader.readLine()
+    while(line != null) {
+      val Array(id, outEdgeCount) = line.split(separator).map(_.toInt)
+      nodeCount += 1
+      var i = 0
+      while (i < outEdgeCount) {
+        val externalId = reader.readLine().toInt
+        i += 1
+        edgeCount += 1
+      }
+      line = reader.readLine()
+    }
+    stream.close()
+    reader.close()
+    (nodeCount, edgeCount)
+  }
+}
+
