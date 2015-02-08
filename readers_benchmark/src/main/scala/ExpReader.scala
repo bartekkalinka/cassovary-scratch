@@ -1,5 +1,7 @@
-import java.io.{DataInputStream, BufferedReader, InputStreamReader, FileInputStream}
+import java.io._
 import java.util.concurrent.Executors
+import java.nio.channels.FileChannel.MapMode._
+import java.nio.ByteOrder._
 
 import com.twitter.cassovary.util.io.AdjacencyListGraphReader
 
@@ -75,3 +77,64 @@ class InputStreamBasedReader extends ExpReader {
   }
 }
 
+class IntsReader1 extends ExpReader {
+  override def read(dir: String, file: String) = {
+    var edgeCount = 0L
+    val stream = new FileInputStream(dir + file)
+    val reader = new BufferedReader(new InputStreamReader(stream))
+    var line = reader.readLine()
+    while(line != null) {
+      val externalId = line.toInt
+      edgeCount += 1
+      line = reader.readLine()
+    }
+    stream.close()
+    reader.close()
+    (0, edgeCount)
+  }
+}
+
+class IntsReader2 extends ExpReader {
+  private val separator = '\n'
+
+  //TODO total draft - calculates edge count incorrectly
+  override def read(dir: String, file: String) = {
+    val stream = new FileInputStream(dir + file)
+    val data = new Array[Byte](100000)
+    var bytesRead = stream.read(data)
+    var edgeCount = 0L
+
+    while(bytesRead != -1) {
+      val str = new String(data, "ASCII")
+      var lastLine = 0
+/*
+      str.split(separator).foreach { line =>
+        edgeCount += 1
+      }
+*/
+      bytesRead = stream.read(data)
+    }
+    stream.close()
+    (0, edgeCount)
+  }
+}
+
+class IntsReader3 extends ExpReader {
+  //TODO total draft - doesn't really calculate edge count
+  override def read(dir: String, inputFile: String) = {
+    var edgeCount = 0L
+    val file = new File("" + dir + inputFile)
+    val fileSize = file.length
+    val stream = new FileInputStream(file)
+    val buffer = stream.getChannel.map(READ_ONLY, 0, fileSize)
+    val data = new Array[Byte](100)
+    buffer.order(LITTLE_ENDIAN)
+    while(buffer.hasRemaining) {
+      buffer.get()
+      edgeCount += 1
+    }
+
+    stream.close()
+    (0, edgeCount)
+  }
+}

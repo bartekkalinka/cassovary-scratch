@@ -20,7 +20,6 @@ class GraphGenerator(nodesNumber: Int) {
     Node(number, edgesSieve(Random.nextInt(nodesNumber) + 1))
   }
 
-  //TODO use streams to generate/write without storing whole graph in memory
   def generateGraphToFile(path: String): Unit = {
     val out = new PrintWriter(path , "UTF-8")
 
@@ -31,6 +30,19 @@ class GraphGenerator(nodesNumber: Int) {
           node.edges.foreach { number =>
             out.println(s"$number")
           }
+      }
+    }
+    finally{ out.close }
+  }
+
+  def generateIntList(path: String): Unit = {
+    val out = new PrintWriter(path , "UTF-8")
+    val intNumber = nodesNumber * nodesNumber / 2
+
+    try{
+      for (i <- 1 to intNumber) {
+        val number = Random.nextInt(nodesNumber)
+        out.println(s"$number")
       }
     }
     finally{ out.close }
@@ -69,10 +81,17 @@ object MainApp {
     }
 
     args(0) match {
-      case "parse" => readGraph(new CurrentRealReader)
+      //full adjacency list format
       case "gen" => generateGraph
+      case "parse" => readGraph(new CurrentRealReader)
       case "emul" => readGraph(new CurrentEmulatedReader)
       case "exp" => readGraph(new InputStreamBasedReader)
+
+      //just list of integers
+      case "ints" => new GraphGenerator(nodesNumber).generateIntList(mainDir + mainFile)
+      case "parseints1" => readGraph(new IntsReader1)
+      case "parseints2" => readGraph(new IntsReader2)
+      case "parseints3" => readGraph(new IntsReader3)
     }
   }
 }
