@@ -8,16 +8,12 @@ import scala.concurrent.duration.Duration
 
 import scala.util.Random
 
-class GraphGenerator(nodesNumber: Int) {
+class GraphGenerator(nodesNumber: Int, edgesProbability: Double) {
   case class Node(number: Int, edges: Seq[Int])
   private var graph: Seq[Node] = _
 
   private def getOneNode(number: Int) = {
-    def edgesSieve(edgesNumber: Int) = {
-      for(x <- 1 to edgesNumber)
-        yield Random.nextInt(nodesNumber) + 1
-    }
-    Node(number, edgesSieve(Random.nextInt(nodesNumber) + 1))
+    Node(number, for(x <- 1 to (nodesNumber * edgesProbability).toInt) yield Random.nextInt(nodesNumber) + 1)
   }
 
   def generateGraphToFile(path: String): Unit = {
@@ -69,6 +65,7 @@ object MainApp {
   val mainDir = "src/main/resources/"
   val mainFile = "generated_graph.txt"
   val nodesNumber = 10000
+  val edgesProbability = 0.5
 
   def main(args: Array[String]) {
     def readGraph(reader: ExpReader) = {
@@ -76,7 +73,7 @@ object MainApp {
     }
 
     def generateGraph = {
-      val gen = new GraphGenerator(nodesNumber)
+      val gen = new GraphGenerator(nodesNumber, edgesProbability)
       gen.generateGraphToFile(mainDir + mainFile)
     }
 
@@ -88,7 +85,7 @@ object MainApp {
       case "exp" => readGraph(new InputStreamBasedReader)
 
       //just list of integers
-      case "ints" => new GraphGenerator(nodesNumber).generateIntList(mainDir + mainFile)
+      case "ints" => new GraphGenerator(nodesNumber, edgesProbability).generateIntList(mainDir + mainFile)
       case "parseints1" => readGraph(new IntsReader1)
       case "parseints2" => readGraph(new IntsReader2)
       case "parseints3" => readGraph(new IntsReader3)
