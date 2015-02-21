@@ -97,7 +97,7 @@ class IntsReader1 extends ExpReader {
 class IntsReader2 extends ExpReader {
   private val separator = '\n'
 
-  //TODO total draft - calculates edge count incorrectly
+  //TODO draft - calculates edge count incorrectly
   override def read(dir: String, file: String) = {
     val stream = new FileInputStream(dir + file)
     val data = new Array[Byte](100000)
@@ -106,12 +106,13 @@ class IntsReader2 extends ExpReader {
 
     while(bytesRead != -1) {
       val str = new String(data, "ASCII")
-      var lastLine = 0
-/*
-      str.split(separator).foreach { line =>
+      val reader = new BufferedReader(new StringReader(str))
+      var line = reader.readLine()
+      while(line != null) {
+        //val externalId = line.toInt
         edgeCount += 1
+        line = reader.readLine()
       }
-*/
       bytesRead = stream.read(data)
     }
     stream.close()
@@ -120,18 +121,33 @@ class IntsReader2 extends ExpReader {
 }
 
 class IntsReader3 extends ExpReader {
+  private val separator = '\n'
+  private val chunkSize = 1000000
+
   //TODO total draft - doesn't really calculate edge count
   override def read(dir: String, inputFile: String) = {
     var edgeCount = 0L
     val file = new File("" + dir + inputFile)
-    val fileSize = file.length
+    val fileSize = file.length.toInt
     val stream = new FileInputStream(file)
     val buffer = stream.getChannel.map(READ_ONLY, 0, fileSize)
-    val data = new Array[Byte](100)
+    val data = new Array[Byte](chunkSize)
     buffer.order(LITTLE_ENDIAN)
+
     while(buffer.hasRemaining) {
-      buffer.get()
-      edgeCount += 1
+      var i = 0
+      while(buffer.hasRemaining && i < chunkSize) {
+        data(i) = buffer.get
+        i += 1
+      }
+      val str = new String(data, "ASCII")
+      val reader = new BufferedReader(new StringReader(str))
+      var line = reader.readLine()
+      while(line != null) {
+        //val externalId = line.toInt
+        edgeCount += 1
+        line = reader.readLine()
+      }
     }
 
     stream.close()
