@@ -66,10 +66,11 @@ object MainApp {
   val mainFile = "generated_graph.txt"
   val nodesNumber = 10000
   val edgesProbability = 0.5
+  val iterations = 12
 
   def main(args: Array[String]) {
     def readGraph(reader: ExpReader) = {
-      val bench = new ReadersBenchmark(reader, mainDir, mainFile, 12).run
+      val bench = new ReadersBenchmark(reader, mainDir, mainFile, iterations).run
     }
 
     def generateGraph = {

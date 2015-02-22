@@ -62,9 +62,11 @@ class InputStreamBasedReader extends ExpReader {
     var line = reader.readLine()
     while(line != null) {
       val Array(id, outEdgeCount) = line.split(separator).map(_.toInt)
+      val outEdgeCount = 10
       nodeCount += 1
       var i = 0
       while (i < outEdgeCount) {
+        val line = reader.readLine()
         val externalId = reader.readLine().toInt
         i += 1
         edgeCount += 1
@@ -84,7 +86,7 @@ class IntsReader1 extends ExpReader {
     val reader = new BufferedReader(new InputStreamReader(stream))
     var line = reader.readLine()
     while(line != null) {
-      val externalId = line.toInt
+      //val externalId = line.toInt
       edgeCount += 1
       line = reader.readLine()
     }
@@ -100,20 +102,32 @@ class IntsReader2 extends ExpReader {
   //TODO draft - calculates edge count incorrectly
   override def read(dir: String, file: String) = {
     val stream = new FileInputStream(dir + file)
-    val data = new Array[Byte](100000)
+    val chunkSize = 100000
+    val data = new Array[Byte](chunkSize)
     var bytesRead = stream.read(data)
     var edgeCount = 0L
+    var remainder = ""
 
     while(bytesRead != -1) {
-      val str = new String(data, "ASCII")
+      val str =
+        if(bytesRead == chunkSize) {
+          remainder +  new String(data, "ASCII")
+        }
+        else {
+          remainder + new String(data.take(bytesRead), "ASCII")
+        }
       val reader = new BufferedReader(new StringReader(str))
       var line = reader.readLine()
       while(line != null) {
         //val externalId = line.toInt
         edgeCount += 1
+        remainder = line + "\n"
         line = reader.readLine()
       }
       bytesRead = stream.read(data)
+      if(bytesRead != -1) {
+        edgeCount -= 1
+      }
     }
     stream.close()
     (0, edgeCount)
