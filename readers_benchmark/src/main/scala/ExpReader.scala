@@ -1,4 +1,5 @@
 import java.io._
+import java.util.Scanner
 import java.util.concurrent.Executors
 import java.nio.channels.FileChannel.MapMode._
 import java.nio.ByteOrder._
@@ -62,7 +63,6 @@ class InputStreamBasedReader extends ExpReader {
     var line = reader.readLine()
     while(line != null) {
       val Array(id, outEdgeCount) = line.split(separator).map(_.toInt)
-      val outEdgeCount = 10
       nodeCount += 1
       var i = 0
       while (i < outEdgeCount) {
@@ -164,6 +164,22 @@ class IntsReader3 extends ExpReader {
       }
     }
 
+    stream.close()
+    (0, edgeCount)
+  }
+}
+
+class IntsReader4 extends ExpReader {
+  override def read(dir: String, file: String) = {
+    var edgeCount = 0L
+    val stream = new FileInputStream(dir + file)
+    val scan = new Scanner(stream)
+    var line = scan.nextLine()
+    while(line != null) {
+      //val externalId = line.toInt
+      edgeCount += 1
+      line = scan.nextLine()
+    }
     stream.close()
     (0, edgeCount)
   }
