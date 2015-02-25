@@ -175,11 +175,45 @@ class IntsReader4 extends ExpReader {
     val stream = new FileInputStream(dir + file)
     val scan = new Scanner(stream)
     var line = scan.nextLine()
-    while(line != null) {
+    while(scan.hasNextLine) {
       //val externalId = line.toInt
       edgeCount += 1
       line = scan.nextLine()
     }
+    stream.close()
+    (0, edgeCount)
+  }
+}
+
+class IntsReader5 extends ExpReader {
+  private val separator = '\n'
+  private val chunkSize = 100000
+
+  //TODO total draft - doesn't really calculate edge count
+  override def read(dir: String, inputFile: String) = {
+    var edgeCount = 0L
+    val file = new File("" + dir + inputFile)
+    val fileSize = file.length.toInt
+    val stream = new FileInputStream(file)
+    val buffer = stream.getChannel.map(READ_ONLY, 0, fileSize).asCharBuffer()
+    val data = new Array[Char](chunkSize)
+
+    while(buffer.hasRemaining) {
+      var i = 0
+      while(buffer.hasRemaining && i < chunkSize) {
+        data(i) = buffer.get
+        i += 1
+      }
+      val str = new String(data)
+      val reader = new BufferedReader(new StringReader(str))
+      var line = reader.readLine()
+      while(line != null) {
+        //val externalId = line.toInt
+        edgeCount += 1
+        line = reader.readLine()
+      }
+    }
+
     stream.close()
     (0, edgeCount)
   }

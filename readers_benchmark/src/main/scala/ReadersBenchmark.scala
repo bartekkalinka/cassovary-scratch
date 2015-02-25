@@ -91,6 +91,7 @@ object MainApp {
       case "parseints2" => readGraph(new IntsReader2)
       case "parseints3" => readGraph(new IntsReader3)
       case "parseints4" => readGraph(new IntsReader4)
+      case "parseints5" => readGraph(new IntsReader5)
     }
   }
 }
