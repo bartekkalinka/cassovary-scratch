@@ -67,7 +67,7 @@ class InputStreamBasedReader extends ExpReader {
       var i = 0
       while (i < outEdgeCount) {
         val line = reader.readLine()
-        val externalId = reader.readLine().toInt
+        val externalId = line.toInt
         i += 1
         edgeCount += 1
       }
